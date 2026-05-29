@@ -1,0 +1,240 @@
+"""
+demo_red.py
+Lanza 3 nodos de la blockchain y los conecta en red local.
+Uso:
+    python demo_red.py
+    python demo_red.py --limpio
+"""
+
+import subprocess
+import sys
+import time
+import requests
+import os
+
+# Ruta absoluta de la carpeta actual
+CARPETA = os.path.dirname(os.path.abspath(__file__))
+
+procesos = []
+NODOS = [5000, 5001, 5002]
+
+
+# Inicia los 3 nodos como subprocesos
+def iniciar_nodos():
+    print("Iniciando nodos...\n")
+    for port in NODOS:
+        print(f"  Nodo {port} iniciando...")
+        proceso = subprocess.Popen(
+            [sys.executable, 'blockchain.py', str(port)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            cwd=CARPETA,
+        )
+        procesos.append(proceso)
+        time.sleep(2)
+    print("\nEsperando que los nodos esten listos...")
+    time.sleep(8)
+
+
+# Reintenta conectarse al nodo hasta que responda
+def esperar_nodo(port, intentos=15, espera=3):
+    for i in range(intentos):
+        try:
+            r = requests.get(f'http://localhost:{port}/get_chain', timeout=3)
+            if r.status_code == 200:
+                return True
+        except:
+            pass
+        print(f"  Nodo {port} aun arrancando... ({i+1}/{intentos})")
+        time.sleep(espera)
+    return False
+
+
+# Verifica que los 3 nodos esten activos
+def verificar_nodos():
+    print("\nVerificando nodos...\n")
+    todos_ok = True
+    for port in NODOS:
+        ok = esperar_nodo(port)
+        if ok:
+            try:
+                r = requests.get(f'http://localhost:{port}/get_chain', timeout=3)
+                longitud = r.json()['longitud']
+                print(f"  Nodo {port} activo - {longitud} bloque(s)")
+            except:
+                print(f"  Nodo {port} no respondio correctamente")
+                todos_ok = False
+        else:
+            print(f"  Nodo {port} no pudo iniciar")
+            todos_ok = False
+    return todos_ok
+
+
+# Conecta cada nodo con los otros dos
+def conectar_nodos():
+    print("\nConectando nodos entre si...\n")
+    for port in NODOS:
+        otros = [f'localhost:{p}' for p in NODOS if p != port]
+        try:
+            r = requests.post(
+                f'http://localhost:{port}/connect_node',
+                json={'nodes': otros},
+                timeout=5
+            )
+            if r.status_code == 201:
+                print(f"  Nodo {port} conectado con {otros}")
+            else:
+                print(f"  Error conectando nodo {port}")
+        except Exception as e:
+            print(f"  Nodo {port} error: {e}")
+
+
+# Demo completa: wallets, minado, transaccion y sincronizacion
+def demo_completa():
+    print("\n" + "-"*44)
+    print("DEMO AUTOMATICA")
+    print("-"*44)
+
+    # 1. Crear wallet A en nodo 5000
+    print("\n[1/6] Creando wallet en Nodo 5000...")
+    try:
+        w = requests.get('http://localhost:5000/new_wallet').json()
+        address_a = w['address']
+        priv_a    = w['private_key']
+        pub_a     = w['public_key']
+        print(f"  Address A: {address_a}")
+    except Exception as e:
+        print(f"  Error: {e}"); return
+
+    # 2. Crear wallet B en nodo 5001
+    print("\n[2/6] Creando wallet en Nodo 5001...")
+    try:
+        w2 = requests.get('http://localhost:5001/new_wallet').json()
+        address_b = w2['address']
+        print(f"  Address B: {address_b}")
+    except Exception as e:
+        print(f"  Error: {e}"); return
+
+    # 3. Minar bloque en nodo A para obtener fondos
+    print("\n[3/6] Minando bloque en Nodo 5000...")
+    try:
+        m = requests.get(f'http://localhost:5000/mine_block/{address_a}', timeout=120).json()
+        print(f"  Bloque #{m['index']} minado")
+        print(f"  Recompensa: {m['recompensa']} tokens")
+        print(f"  Merkle Root: {m['merkle_root'][:30]}...")
+    except Exception as e:
+        print(f"  Error: {e}"); return
+
+    # 4. Firmar transaccion A -> B y enviarla
+    print("\n[4/6] Firmando transaccion A -> B...")
+    try:
+        firma_data = requests.post('http://localhost:5000/sign_transaction', json={
+            'private_key':  priv_a,
+            'remitente':    address_a,
+            'destinatario': address_b,
+            'monto':        3,
+        }).json()
+
+        tx = requests.post('http://localhost:5000/add_transaction', json={
+            'remitente':    address_a,
+            'destinatario': address_b,
+            'monto':        3,
+            'public_key':   pub_a,
+            'firma':        firma_data['firma'],
+        }).json()
+        print(f"  {tx.get('mensaje', tx)}")
+    except Exception as e:
+        print(f"  Error: {e}"); return
+
+    # 5. Minar bloque para confirmar la transaccion
+    print("\n[5/6] Minando bloque para confirmar transaccion...")
+    try:
+        m2 = requests.get(f'http://localhost:5000/mine_block/{address_a}', timeout=120).json()
+        print(f"  Bloque #{m2['index']} minado")
+        print(f"  {len(m2['transacciones'])} transaccion(es) confirmada(s)")
+    except Exception as e:
+        print(f"  Error: {e}"); return
+
+    # 6. Sincronizar nodos B y C con la cadena mas larga
+    print("\n[6/6] Sincronizando Nodos 5001 y 5002...")
+    for port in [5001, 5002]:
+        try:
+            r = requests.get(f'http://localhost:{port}/replace_chain').json()
+            print(f"  Nodo {port}: {r['mensaje']}")
+        except Exception as e:
+            print(f"  Error nodo {port}: {e}")
+
+    # Mostrar saldos finales
+    print("\nSALDOS FINALES")
+    print("-"*44)
+    for port, addr, nombre in [
+        (5000, address_a, "Wallet A (minero)"),
+        (5001, address_b, "Wallet B (receptor)"),
+    ]:
+        try:
+            s = requests.get(f'http://localhost:{port}/get_balance/{addr}').json()
+            print(f"  {nombre}: {s['saldo']} tokens")
+        except:
+            pass
+
+    # Estado de la cadena en cada nodo
+    print("\nCADENA EN CADA NODO")
+    print("-"*44)
+    for port in NODOS:
+        try:
+            c = requests.get(f'http://localhost:{port}/get_chain').json()
+            v = requests.get(f'http://localhost:{port}/is_valid').json()
+            estado = "valida" if v['valida'] else "invalida"
+            print(f"  Nodo {port}: {c['longitud']} bloques - cadena {estado}")
+        except:
+            pass
+
+
+def apagar_nodos():
+    print("\nApagando nodos...")
+    for p in procesos:
+        try:
+            p.terminate()
+        except:
+            pass
+    print("Nodos apagados.\n")
+
+
+def limpiar_archivos():
+    for port in NODOS:
+        archivo = os.path.join(CARPETA, f'blockchain_{port}.json')
+        if os.path.exists(archivo):
+            os.remove(archivo)
+            print(f"  {archivo} eliminado")
+
+
+if __name__ == '__main__':
+
+    if '--limpio' in sys.argv:
+        print("Limpiando cadenas anteriores...")
+        limpiar_archivos()
+        print()
+
+    iniciar_nodos()
+
+    if not verificar_nodos():
+        print("\nAlgun nodo no pudo iniciar.")
+        print("Asegurate de que blockchain.py esta en la misma carpeta.")
+        apagar_nodos()
+        sys.exit(1)
+
+    conectar_nodos()
+    demo_completa()
+
+    print("\n" + "-"*44)
+    print("Red activa. Nodos corriendo en:")
+    for port in NODOS:
+        print(f"  http://localhost:{port}")
+    print("\nPresiona Ctrl+C para apagar la red.")
+    print("-"*44 + "\n")
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        apagar_nodos()
