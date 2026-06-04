@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simicoin - El Bienestar Descentralizado</title>
+    <style>
+        :root {
+            --azul-principal: #0f2a63;
+            --dorado: #B8860B;
+            --dorado-claro: #D4AF37;
+            --gris-fondo: #f8fafc;
+            --blanco: #ffffff;
+        }
+
+        body {
+            font-family: 'Helvetica', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--gris-fondo);
+            color: #333;
+        }
+       
+        header {
+            background-color: var(--azul-principal);
+            color: var(--blanco);
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid var(--dorado);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        .proposal-authors {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--dorado-claro);
+            border: 1px solid var(--dorado-claro);
+            padding: 6px 16px;
+            border-radius: 20px;
+            background-color: rgba(212, 175, 55, 0.1);
+        }       
+        .hero-section {
+            background-color: var(--blanco);
+            padding: 60px 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+
+        .hero-section h2 {
+            color: var(--azul-principal);
+            font-size: 36px;
+            margin-bottom: 15px;
+            max-width: 800px;
+        }
+
+        .hero-section p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #555;
+            max-width: 800px;
+            margin: 0 auto 25px auto;
+            text-align: center;
+        }
+
+       
+        .moneda-wrapper {
+            margin-top: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .moneda-wrapper img {
+            max-width: 240px; /* Tamaño optimizado y reducido */
+            width: 100%;
+            height: auto;
+            animation: flotar 3s ease-in-out infinite;
+        }
+
+        @keyframes flotar {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .cta-group {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .btn-interfaz-hero {
+            background-color: var(--azul-principal);
+            color: var(--blanco);
+            padding: 14px 40px;
+            border: 2px solid var(--azul-principal);
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 4px 12px rgba(15, 42, 99, 0.2);
+        }
+
+        .btn-interfaz-hero:hover {
+            background-color: transparent;
+            color: var(--azul-principal);
+            transform: scale(1.05);
+        }
+
+       
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 50px;
+        }
+
+      
+        .decentralized-info {
+            background-color: var(--azul-principal);
+            color: var(--blanco);
+            padding: 35px;
+            border-radius: 12px;
+            border-right: 6px solid var(--dorado);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .decentralized-info h3 {
+            color: var(--dorado-claro);
+            margin-top: 0;
+            font-size: 22px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .decentralized-info p {
+            font-size: 15px;
+            line-height: 1.6;
+            margin: 0;
+            color: #e2ebf0;
+        }
+       
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background-color: var(--blanco);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid rgba(15, 42, 99, 0.08);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.01);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 18px rgba(15, 42, 99, 0.05);
+        }
+
+        .feature-card h3 {
+            color: var(--azul-principal);
+            font-size: 19px;
+            margin-top: 0;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #666;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+
+        .feature-img {
+            width: 100%;
+            height: 260px; 
+            object-fit: contain; 
+            border-radius: 8px;
+            background-color: transparent;
+            margin-top: auto;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--azul-principal);
+            color: var(--blanco);
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 60px;
+            border-top: 4px solid var(--dorado);
+            font-size: 14px;
+        }
+
+        footer p {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>SIMICOIN ®</h1>
+        <!-- Espacio superior actualizado con los apellidos de los ponentes -->
+        <div class="proposal-authors">Propuesta: Chio, Sosa, Sosa, Cadena</div>
+    </header>
+
+    <div class="hero-section">
+        <h2>Simicoin: Innovación Financiera para el Bienestar</h2>
+        <p>Un utility token corporativo diseñado bajo una arquitectura de red interactiva e infraestructura criptográfica robusta para converger la economía digital con los servicios tradicionales de salud en beneficio de la sociedad.</p>
+        
+        <div class="moneda-wrapper">
+            <!-- Primera imagen en el orden exacto: moneda.png -->
+            <img src="moneda.png" alt="Simicoin Criptomoneda Oficial">
+        </div>
+
+        <div class="cta-group">
+            <!-- Único botón de redirección hacia el panel de la interfaz contable -->
+            <a href="Interfaz.html" class="btn-interfaz-hero">Acceder a la Interfaz Blockchain</a>
+        </div>
+    </div>
+
+    <div class="container">
+
+       
+        <div class="decentralized-info">
+            <h3>¿Qué es la Economía Descentralizada en Simicoin?</h3>
+            <p>
+                La economía descentralizada elimina las barreras e intermediarios de la banca e instituciones financieras tradicionales mediante el uso de Registros Distribuidos (DLT) y redes contables inmutables. En el ecosistema de Simicoin, esto faculta la ejecución de transacciones directas "Peer-to-Peer" de manera transparente y verificable por los nodos de la red, devolviendo el control soberano de los activos financieros a las carteras digitales de los propios usuarios sin depender de un servidor centralizado.
+            </p>
+        </div>
+
+        <div class="features-grid">
+            <!-- Tarjeta 1: Gobernanza Monetaria Fija -> gobernanza.png -->
+            <div class="feature-card">
+                <div>
+                    <h3>Gobernanza Monetaria Fija</h3>
+                    <p>Implementación estricta de una política monetaria deflacionaria con un límite absoluto e inmutable de <strong>1,000,000,000 unidades SMC</strong>. Esta restricción algorítmica previene la devaluación por emisión descontrolada y salvaguarda la estabilidad económica del ecosistema.</p>
+                </div>
+                <img class="feature-img" src="gobernanza.png" alt="Gobernanza Monetaria Fija">
+            </div>
+
+            <!-- Tarjeta 2: Seguridad y No Repudio (ECDSA) -> seguridad.png -->
+            <div class="feature-card">
+                <div>
+                    <h3>Seguridad y No Repudio (ECDSA)</h3>
+                    <p>Autenticación criptográfica asimétrica basada en el algoritmo de firma digital sobre la curva elíptica estándar <strong>secp256k1</strong>. Cada transacción requiere el rubricado con la clave privada del emisor, blindando el sistema contra la suplantación de identidad.</p>
+                </div>
+                <img class="feature-img" src="seguridad.png" alt="Seguridad y Criptografía ECDSA">
+            </div>
+
+            <!-- Tarjeta 3: Ecosistema de Utilidad Comercial -> ecosistema.png -->
+            <div class="feature-card">
+                <div>
+                    <h3>Ecosistema de Utilidad Comercial</h3>
+                    <p>Integración funcional como pasarela transaccional directa dentro del comercio electrónico y sucursales físicas. Otorga accesos exclusivos a nuevas líneas de mercancía coleccionable corporativa y la aplicación automatizada de descuentos promocionales por lanzamiento.</p>
+                </div>
+                <img class="feature-img" src="ecosistema.png" alt="Ecosistema de Utilidad Comercial">
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p><strong>Identidad Laboral GPUPM:</strong> "Ayudar a todo ser vivo y transformar de forma positiva su realidad."</p>
+        <p>© 2026 Farmacias de Similares | Redes Sociales oficiales: @fsimilares</p>
+    </footer>
+
+</body>
+</html>
